@@ -15,7 +15,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/travelinfo'
-          description: Flightplan of today
+          description: Travel information
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /firstblob:
+    get:
+      operationId: firstblob_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema: {}
+          description: First blob containing travel information
       x-openapi-router-controller: openapi_server.controllers.default_controller
 components:
   schemas:
