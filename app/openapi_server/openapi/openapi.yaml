@@ -32,8 +32,8 @@ components:
     travelinfo:
       description: Travel information
       example:
-        distance: 340
-        time: 989
+        travel_distance: 340
+        travel_time: 989
       properties:
         travel_distance:
           format: int32
