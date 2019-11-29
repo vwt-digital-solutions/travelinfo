@@ -1,0 +1,45 @@
+openapi: 3.0.2
+info:
+  description: Get VWT travel information
+  title: Travel information
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+paths:
+  /travelinfo:
+    get:
+      operationId: travelinfo_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/travelinfo'
+          description: Travel information
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /firstblob:
+    get:
+      operationId: firstblob_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema: {}
+          description: First blob containing travel information
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+components:
+  schemas:
+    travelinfo:
+      description: Travel information
+      example:
+        travel_distance: 340
+        travel_time: 989
+      properties:
+        travel_distance:
+          format: int32
+          type: integer
+        travel_time:
+          format: int32
+          type: integer
+      title: Travel information
+      type: object
