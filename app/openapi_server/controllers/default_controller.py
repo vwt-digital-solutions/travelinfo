@@ -4,7 +4,7 @@ from google.cloud import storage
 
 
 storage_client = storage.Client()
-storage_bucket = storage_client.get_bucket('my-bucket')
+storage_bucket = storage_client.get_bucket('vwt-d-gew1-mendix-wha-dojo-1212')
 
 
 def travelinfo_get():  # noqa: E501
