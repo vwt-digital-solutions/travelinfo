@@ -19,7 +19,14 @@ def travelinfo_get():  # noqa: E501
 
 
 def firstblob_get():
-    firstblob = storage_bucket.get_blob('source/devices-locations/2019/11/01/20191101T000001Z.json')
-    json_data = json.loads(firstblob.download_as_string())
-    logging.info(f"First blob {json_data}")
-    return json_data
+    carblob = storage_bucket.get_blob('source/hyrde/devices-locations/2019/12/11/20191211T000001Z.json')
+    car_data = json.loads(carblob.download_as_string())
+    workblob = storage_bucket.get_blob('source/link2/workitems/workitems_geo.json')
+    work_data = json.loads(workblob.download_as_string())
+    logging.info(f"Car blob {car_data}")
+    logging.info(f"Work blob {work_data}")
+
+    return {
+        "cars": car_data,
+        "work": work_data
+    }
