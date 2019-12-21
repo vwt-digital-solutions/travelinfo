@@ -5,7 +5,7 @@ from google.cloud import storage
 from flask import send_file
 
 storage_client = storage.Client()
-storage_bucket = storage_client.get_bucket('my-bucket')
+storage_bucket = storage_client.get_bucket('vwt-d-gew1-mendix-wha-dojo-1224')
 
 
 def travelinfo_get():  # noqa: E501
