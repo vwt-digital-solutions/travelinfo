@@ -1,14 +1,15 @@
 import logging
 import json
+import tempfile
 from google.cloud import storage
-
+from flask import send_file
 
 storage_client = storage.Client()
 storage_bucket = storage_client.get_bucket('my-bucket')
 
 
 def travelinfo_get():  # noqa: E501
-    """flightplan_get
+    """travelinfo_get
 
      # noqa: E501
 
@@ -18,15 +19,24 @@ def travelinfo_get():  # noqa: E501
     return 'do some magic!'
 
 
+def raininfluence_get():
+    return 'do more magic!'
+
+
 def firstblob_get():
-    carblob = storage_bucket.get_blob('source/hyrde/devices-locations/2019/12/11/20191211T000001Z.json')
-    car_data = json.loads(carblob.download_as_string())
-    workblob = storage_bucket.get_blob('source/link2/workitems/workitems_geo.json')
+    workblob = storage_bucket.get_blob('source/link2/workitems/20191219T180004Z.json')
     work_data = json.loads(workblob.download_as_string())
-    logging.info(f"Car blob {car_data}")
     logging.info(f"Work blob {work_data}")
 
-    return {
-        "cars": car_data,
-        "work": work_data
-    }
+    return work_data
+
+
+def raininfo_get():
+    rainfile = tempfile.NamedTemporaryFile()
+    storage_bucket.get_blob('KNMI_20190101_20191220.txt').download_to_file(rainfile)
+
+    return send_file(
+        rainfile.name,
+        mimetype='text/csv',
+        as_attachment=True,
+        attachment_filename='precipitation.csv')

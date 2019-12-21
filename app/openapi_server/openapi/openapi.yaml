@@ -17,6 +17,17 @@ paths:
                 $ref: '#/components/schemas/travelinfo'
           description: Travel information
       x-openapi-router-controller: openapi_server.controllers.default_controller
+  /raininfluence:
+    get:
+      operationId: raininfluence_get
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/raininfluence'
+          description: Influence of rain on work
+      x-openapi-router-controller: openapi_server.controllers.default_controller
   /firstblob:
     get:
       operationId: firstblob_get
@@ -25,7 +36,18 @@ paths:
           content:
             application/json:
               schema: {}
-          description: First blob containing travel information
+          description: First blob containing work information
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /raininfo:
+    get:
+      operationId: raininfo_get
+      responses:
+        200:
+          description: "Daily precipitation"
+          content:
+            text/csv:
+              schema:
+                $ref: '#/components/schemas/raininfo'
       x-openapi-router-controller: openapi_server.controllers.default_controller
 components:
   schemas:
@@ -43,3 +65,27 @@ components:
           type: integer
       title: Travel information
       type: object
+    raininfluence:
+      description: Describes influence of rain on work
+      example:
+        covariance: 0.3
+        correlation: 0.5
+        total_precipitation: 203
+        total_work: 12454
+      properties:
+        covariance:
+          format: float
+          type: number
+        correlation:
+          format: float
+          type: number
+        total_precipitation:
+          format: float
+          type: number
+        total_work:
+          type: integer
+      title: Rain influence
+      type: object
+    raininfo:
+      title: Precipitation information
+      description: Daily precipitation information
