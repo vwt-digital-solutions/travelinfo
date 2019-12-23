@@ -40,3 +40,14 @@ def raininfo_get():
         mimetype='text/csv',
         as_attachment=True,
         attachment_filename='precipitation.csv')
+
+
+def g4pp_get():
+    g4ppfile = tempfile.NamedTemporaryFile()
+    storage_bucket.get_blob('4pp.csv').download_to_file(g4ppfile)
+
+    return send_file(
+        g4ppfile.name,
+        mimetype='text/csv',
+        as_attachment=True,
+        attachment_filename='4pp.csv')
