@@ -25,7 +25,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/raininfluence'
+                $ref: '#/components/schemas/raininfluenceresult'
           description: Influence of rain on work
       x-openapi-router-controller: openapi_server.controllers.default_controller
   /firstblob:
@@ -49,6 +49,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/raininfo'
       x-openapi-router-controller: openapi_server.controllers.default_controller
+  /postcodegeo:
+    get:
+      operationId: g4pp_get
+      responses:
+        200:
+          description: "Postal code geo information"
+          content:
+            text/csv:
+              schema:
+                type: string
+      x-openapi-router-controller: openapi_server.controllers.default_controller
 components:
   schemas:
     travelinfo:
@@ -68,11 +79,14 @@ components:
     raininfluence:
       description: Describes influence of rain on work
       example:
+        area: "NL"
         covariance: 0.3
         correlation: 0.5
         total_precipitation: 203
         total_work: 12454
       properties:
+        area:
+          type: string
         covariance:
           format: float
           type: number
@@ -86,6 +100,13 @@ components:
           type: integer
       title: Rain influence
       type: object
+    raininfluenceresult:
+      description: Describes influence of rain on work for multiple areas
+      properties:
+        info:
+          type: array
+          items:
+            $ref: '#/components/schemas/raininfluence'
     raininfo:
       title: Precipitation information
       description: Daily precipitation information
