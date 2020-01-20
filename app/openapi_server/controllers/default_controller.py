@@ -1,54 +1,26 @@
-import config
-import logging
-import json
-import tempfile
-from google.cloud import storage
-from flask import send_file
-
-storage_client = storage.Client()
-storage_bucket = storage_client.get_bucket(config.GCS_BUCKET)
-
+from flask import request
 
 def travelinfo_get():  # noqa: E501
-    """travelinfo_get
-
-     # noqa: E501
+    return travelrequests, 200
 
 
-    :rtype: object
-    """
-    return 'do some magic!'
+def travelrequest_post():  # noqa: E501
+    print(request.json)
+    new_req = request.json
 
+    for i,req in enumerate(travelrequests):
+        print ("print lijst {}".format(req))
+        print("print nieuw {}".format(new_req))
+        if req['departure'] >= new_req['departure']:
+            travelrequests.insert(i, new_req)
+            break
+        elif i+1 == len(travelrequests):
+            travelrequests.append(new_req)
+            break
 
-def raininfluence_get():
-    return 'do more magic!'
+    if not travelrequests:
+        travelrequests.append(new_req)
 
+    return travelrequests, 201
 
-def firstblob_get():
-    workblob = storage_bucket.get_blob(config.GCS_STORAGE_BLOB)
-    work_data = json.loads(workblob.download_as_string())
-    logging.info(f"Work blob {work_data}")
-
-    return work_data
-
-
-def raininfo_get():
-    rainfile = tempfile.NamedTemporaryFile()
-    storage_bucket.get_blob('KNMI_20190101_20191220.txt').download_to_file(rainfile)
-
-    return send_file(
-        rainfile.name,
-        mimetype='text/csv',
-        as_attachment=True,
-        attachment_filename='precipitation.csv')
-
-
-def g4pp_get():
-    g4ppfile = tempfile.NamedTemporaryFile()
-    storage_bucket.get_blob('4pp.csv').download_to_file(g4ppfile)
-
-    return send_file(
-        g4ppfile.name,
-        mimetype='text/csv',
-        as_attachment=True,
-        attachment_filename='4pp.csv')
+travelrequests = []

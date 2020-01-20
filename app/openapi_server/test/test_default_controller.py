@@ -16,15 +16,19 @@ class TestDefaultController(BaseTestCase):
 
         Create a flightrequest
         """
-        flight = {}
+        trip = {
+            "duration": 90,
+            "departure": "2020-01-13T14:48",
+            "price": 20
+        }
         headers = {
             'Content-Type': 'application/json',
         }
         response = self.client.open(
-            '/flightrequests',
+            '/travelrequest',
             method='POST',
             headers=headers,
-            data=json.dumps(flight),
+            data=json.dumps(trip),
             content_type='application/json')
         self.assert200(response,
                        'Response body is : ' + response.data.decode('utf-8'))
@@ -37,7 +41,7 @@ class TestDefaultController(BaseTestCase):
             'Accept': 'application/json',
         }
         response = self.client.open(
-            '/flightplan',
+            '/travelinfo',
             method='GET',
             headers=headers)
         self.assert200(response,

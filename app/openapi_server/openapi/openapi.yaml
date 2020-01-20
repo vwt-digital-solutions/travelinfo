@@ -17,96 +17,41 @@ paths:
                 $ref: '#/components/schemas/travelinfo'
           description: Travel information
       x-openapi-router-controller: openapi_server.controllers.default_controller
-  /raininfluence:
-    get:
-      operationId: raininfluence_get
+  /travelrequest:
+    post:
+      operationId: travelrequest_post
+      requestBody:
+        description: travelrequest
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/trip'
       responses:
-        200:
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/raininfluenceresult'
-          description: Influence of rain on work
-      x-openapi-router-controller: openapi_server.controllers.default_controller
-  /firstblob:
-    get:
-      operationId: firstblob_get
-      responses:
-        200:
-          content:
-            application/json:
-              schema: {}
-          description: First blob containing work information
-      x-openapi-router-controller: openapi_server.controllers.default_controller
-  /raininfo:
-    get:
-      operationId: raininfo_get
-      responses:
-        200:
-          description: "Daily precipitation"
-          content:
-            text/csv:
-              schema:
-                $ref: '#/components/schemas/raininfo'
-      x-openapi-router-controller: openapi_server.controllers.default_controller
-  /postcodegeo:
-    get:
-      operationId: g4pp_get
-      responses:
-        200:
-          description: "Postal code geo information"
-          content:
-            text/csv:
-              schema:
-                type: string
+        '201':
+          description: Created
       x-openapi-router-controller: openapi_server.controllers.default_controller
 components:
   schemas:
     travelinfo:
       description: Travel information
       example:
-        travel_distance: 340
-        travel_time: 989
+        trips:
+        - departure: "2020-01-14T12:48"
+          price: 100.00
+          duration: 90
       properties:
-        travel_distance:
-          format: int32
-          type: integer
-        travel_time:
-          format: int32
-          type: integer
-      title: Travel information
-      type: object
-    raininfluence:
-      description: Describes influence of rain on work
-      example:
-        area: "NL"
-        covariance: 0.3
-        correlation: 0.5
-        total_precipitation: 203
-        total_work: 12454
-      properties:
-        area:
-          type: string
-        covariance:
-          format: float
-          type: number
-        correlation:
-          format: float
-          type: number
-        total_precipitation:
-          format: float
-          type: number
-        total_work:
-          type: integer
-      title: Rain influence
-      type: object
-    raininfluenceresult:
-      description: Describes influence of rain on work for multiple areas
-      properties:
-        info:
+        trips:
           type: array
           items:
-            $ref: '#/components/schemas/raininfluence'
-    raininfo:
-      title: Precipitation information
-      description: Daily precipitation information
+            $ref: '#/components/schemas/trip'
+    trip:
+      properties:
+        departure:
+          format: date-time
+          type: string
+        price:
+          format: int32
+          type: integer
+      title: Trip information
+      type: object
