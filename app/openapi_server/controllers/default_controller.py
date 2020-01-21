@@ -1,3 +1,4 @@
+import config
 import logging
 import json
 import tempfile
@@ -5,7 +6,7 @@ from google.cloud import storage
 from flask import send_file
 
 storage_client = storage.Client()
-storage_bucket = storage_client.get_bucket('my-bucket')
+storage_bucket = storage_client.get_bucket(config.GCS_BUCKET)
 
 
 def travelinfo_get():  # noqa: E501
@@ -24,7 +25,7 @@ def raininfluence_get():
 
 
 def firstblob_get():
-    workblob = storage_bucket.get_blob('source/link2/workitems/20191219T180004Z.json')
+    workblob = storage_bucket.blob('2019/9/23/20190923T232007Z.json')
     work_data = json.loads(workblob.download_as_string())
     logging.info(f"Work blob {work_data}")
 
@@ -33,7 +34,7 @@ def firstblob_get():
 
 def raininfo_get():
     rainfile = tempfile.NamedTemporaryFile()
-    storage_bucket.get_blob('KNMI_20190101_20191220.txt').download_to_file(rainfile)
+    storage_bucket.get_blob('KNMI_20200119.txt').download_to_file(rainfile)
 
     return send_file(
         rainfile.name,
