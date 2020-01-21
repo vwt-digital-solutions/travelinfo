@@ -1,12 +1,47 @@
+from collections import OrderedDict
+
 import config
 import logging
 import json
 import tempfile
 from google.cloud import storage
 from flask import send_file
+import csv
 
 storage_client = storage.Client()
 storage_bucket = storage_client.get_bucket(config.GCS_BUCKET)
+
+my_rainfile = tempfile.NamedTemporaryFile()
+
+storage_bucket.get_blob('KNMI_20200119.txt').download_to_file(my_rainfile)
+
+rain_dict = OrderedDict()
+with open(my_rainfile.name) as read_file:
+    my_reader = csv.reader(read_file)
+    for row in my_reader:
+        if row[0].startswith('#') or not row[2].strip() or row[2].strip() == '-1':
+            continue
+        rain_dict[row[1]] = rain_dict.get(row[1], 0) + int(row[2].strip())
+
+print(rain_dict)
+
+work_blobs = list(storage_client.list_blobs(storage_bucket, prefix='2019/10'))
+print(work_blobs)
+current_day = ''
+dagelijkse_storingen = OrderedDict()
+for work_blob in work_blobs:
+    if work_blob.name[0:10] != current_day:
+        current_day = work_blob.name[0:10]
+        work_data = json.loads(work_blob.download_as_string())
+        print(f"blob {work_blob.name} current_day {current_day}")
+
+        storingen = list(filter(lambda x: True if "storing" in x["Omschrijving"].lower() or "incident" in x["Omschrijving"].lower() else False, work_data["Rows"]))
+        today = work_blob.name[11:19]
+
+        dagelijkse_storingen[today] = len(storingen)
+
+print(dagelijkse_storingen)
+
 
 
 def travelinfo_get():  # noqa: E501
@@ -21,7 +56,22 @@ def travelinfo_get():  # noqa: E501
 
 
 def raininfluence_get():
-    return 'do more magic!'
+    for (key, value) in rain_dict.items():
+        
+    total_work =
+
+    return {
+          "info": [
+            {
+              "area": "NL",
+              "correlation": 0.5,
+              "covariance": 0.3,
+              "total_precipitation": 203,
+              "total_work": 12454
+            }
+          ]
+        }
+
 
 
 def firstblob_get():
