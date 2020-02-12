@@ -45,7 +45,7 @@ paths:
         200:
           description: "Daily precipitation"
           content:
-            text/csv:
+            application/json:
               schema:
                 $ref: '#/components/schemas/raininfo'
       x-openapi-router-controller: openapi_server.controllers.default_controller
