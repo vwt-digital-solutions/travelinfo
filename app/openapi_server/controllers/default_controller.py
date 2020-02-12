@@ -7,6 +7,7 @@ import tempfile
 from google.cloud import storage
 from flask import send_file
 import csv
+import re
 
 storage_client = storage.Client()
 storage_bucket = storage_client.get_bucket(config.GCS_BUCKET)
@@ -16,26 +17,49 @@ my_rainfile = tempfile.NamedTemporaryFile()
 storage_bucket.get_blob('KNMI_20200119.txt').download_to_file(my_rainfile)
 
 rain_dict = OrderedDict()
+loc_dict = {}
 with open(my_rainfile.name) as read_file:
     my_reader = csv.reader(read_file)
     for row in my_reader:
         if row[0].startswith('#') or not row[2].strip() or row[2].strip() == '-1':
+            regroups =  re.search('^# ([0-9]{3}):\s*([0-9,.]+)\s.*\s([0-9,.]+)\s.*[\s,-]([0-9,.]+)\s*(\w+)', row[0])
+            if regroups:
+                loc_dict[regroups.group(1)] = {"lat" : regroups.group(3),
+                                               "lon" : regroups.group(2),
+                                               "name": regroups.group(5)}
             continue
         station = row[0].strip()
         if station not in rain_dict:
             rain_dict[station] = OrderedDict()
         rain_dict[station][row[1]] = rain_dict[station].get(row[1], 0) + int(row[2].strip())
 
+#print(loc_dict)
 
-work_blobs = list(storage_client.list_blobs(storage_bucket, prefix='2019/10'))
-print(work_blobs)
+
+work_blobs = list(storage_client.list_blobs(storage_bucket, prefix='2019/10/01'))
+print(work_blobs[-1])
+
+#Inladen laatste file 2019/10/01
+work_data = json.loads(work_blobs[-1].download_as_string())
+
+
+storing_dict = {}
+for row in work_data["Rows"]:
+    if row["Opdrachttype"].startswith("Service Koper"):
+        omschrijving = row["Omschrijving"]
+        storing_dict[omschrijving] = {"Count": 1
+        }
+print(storing_dict)
+
+# Location 330
+
 
 
 def raininfluence_get():
     return {
           "info": [
             {
-              "area": "NL",
+              "area": "330",
               "correlation": None,
               "covariance": None,
               "total_precipitation": None,
