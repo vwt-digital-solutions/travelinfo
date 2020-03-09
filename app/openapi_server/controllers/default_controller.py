@@ -36,20 +36,13 @@ with open(my_rainfile.name) as read_file:
 #print(loc_dict)
 
 
-work_blobs = list(storage_client.list_blobs(storage_bucket, prefix='2019/10/01'))
+work_blobs = list(storage_client.list_blobs(storage_bucket, prefix='workitems/201910'))
 print(work_blobs[-1])
 
-#Inladen laatste file 2019/10/01
+#Inladen laatste file 2019/10
 work_data = json.loads(work_blobs[-1].download_as_string())
 
 
-storing_dict = {}
-for row in work_data["Rows"]:
-    if row["Opdrachttype"].startswith("Service Koper"):
-        omschrijving = row["Omschrijving"]
-        storing_dict[omschrijving] = {"Count": 1
-        }
-print(storing_dict)
 
 # Location 330
 
@@ -70,7 +63,7 @@ def raininfluence_get():
 
 
 def firstblob_get():
-    workblob = storage_bucket.blob('2019/9/23/20190923T232007Z.json')
+    workblob = storage_bucket.blob('workitems/20191023T190005Z.json')
     work_data = json.loads(workblob.download_as_string())
     logging.info(f"Work blob {work_data}")
 
