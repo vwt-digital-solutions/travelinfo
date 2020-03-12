@@ -10,6 +10,7 @@ from flask import send_file
 import csv
 import re
 import pandas as pd
+import numpy as np
 
 storage_client = storage.Client()
 storage_bucket = storage_client.get_bucket(config.GCS_BUCKET)
@@ -18,7 +19,7 @@ my_rainfile = tempfile.NamedTemporaryFile()
 
 storage_bucket.get_blob('KNMI_20200119.txt').download_to_file(my_rainfile)
 
-rain_dict = OrderedDict()
+rain_dict = {}
 loc_dict = {}
 with open(my_rainfile.name) as read_file:
     my_reader = csv.reader(read_file)
@@ -28,25 +29,27 @@ with open(my_rainfile.name) as read_file:
             if regroups:
                 loc_dict[regroups.group(1)] = {"lat" : regroups.group(3),
                                                "lon" : regroups.group(2),
-                                               "name": regroups.group(5)}
+                                               "name": regroups.group(5),
+                                               "avg_rainfall": None}
             continue
         station = row[0].strip()
         if station not in rain_dict:
-            rain_dict[station] = OrderedDict()
+            rain_dict[station] = {}
         rain_dict[station][row[1]] = rain_dict[station].get(row[1], 0) + int(row[2].strip())
 
-#print(loc_dict)
-
+for loc in rain_dict:
+    loc_dict[loc]['avg_rainfall'] = np.mean(list(rain_dict[loc].values()))
 
 work_blobs = list(storage_client.list_blobs(storage_bucket, prefix='workitems/201911'))
-print(work_blobs[-1])
+# print(work_blobs[-1])
 
 #Inladen laatste file 2019/10
-work_data = json.loads(work_blobs[-3].download_as_string())
-
-df = pd.DataFrame(work_data["Rows"])
-koperstoringen_df = df[(df["Opdrachttype"].str.startswith("Service Koper")) & (df["Omschrijving"].str.lower().str.contains("storing")|df["Omschrijving"].str.lower().str.contains("incident"))]
-koperstoringen_df["PCGetal"] = koperstoringen_df["Postcode"].str.slice(0, 4).astype("string")
+work_data = []
+koperstoringen_df = []
+for i in range(7):
+    df = pd.DataFrame(json.loads(work_blobs[12 + i].download_as_string())["Rows"])
+    koperstoringen_df.append(df[(df["Opdrachttype"].str.startswith("Service Koper")) & (df["Omschrijving"].str.lower().str.contains("storing")|df["Omschrijving"].str.lower().str.contains("incident"))])
+    koperstoringen_df[i]["PCGetal"] = koperstoringen_df[i]["Postcode"].str.slice(0, 4).astype("string")
 
 g4ppfile=tempfile.NamedTemporaryFile()
 storage_bucket.get_blob('4pp.csv').download_to_file(g4ppfile)
@@ -73,9 +76,21 @@ def get_nearest_station(pc_lat, pc_lon):
 postcode_df["station"] = postcode_df.apply(lambda x: get_nearest_station(x.latitude, x.longitude), axis=1)
 print(postcode_df)
 
+storingen_per_station = {}
+for i in range(7):
+    storingen = pd.merge(koperstoringen_df[i], postcode_df, left_on=['PCGetal'], right_on=['postcode_string'])
+    storingen = storingen[["station", "postcode"]].groupby(["station"]).count().to_dict()['postcode']
+    for station, n in storingen.items():
+        if station not in storingen_per_station:
+            storingen_per_station[station] = []
+        storingen_per_station[station].append(n)
 
-storingen_met_pc_df = pd.merge(koperstoringen_df, postcode_df, left_on=['PCGetal'], right_on=['postcode_string'])
-print(storingen_met_pc_df[["station", "postcode"]].groupby(["station"]).count())
+for station, n in storingen_per_station.items():
+    storingen_per_station[station] = list(np.array(n[1:]) - np.array(n[:-1]))
+
+print(storingen_per_station['350'])
+
+# print(storingen_met_pc_df[["station", "#storingen"]].groupby(["station"]).count())
 #print(df.columns)
 #print(df[["latitude", "longitude", "Postcode"]])
 
