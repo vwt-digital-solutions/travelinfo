@@ -6,26 +6,87 @@ info:
 servers:
 - url: http://localhost:8080
 paths:
-  /travelinfo:
+  /Analyze:
+    post:
+      operationId: analyze_data
+      responses:
+        204:
+          description: Analyze new data
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /CarsActivity:
     get:
-      operationId: travelinfo_get
+      operationId: cars_activity_get
       responses:
         200:
+          description: CarsActivity index
+          content: 
+            application/json:
+              schema:
+                type: object
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /CarsActivity/query:
+    get:
+      operationId: cars_activity_query_get
+      responses:
+        200:
+          description: CarsActivity Grafana SimpleJson source
+          content: 
+            application/json:
+              schema:
+                type: object
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+    post:
+      operationId: cars_activity_query_post
+      responses:
+        204:
+          description: Analyze new data
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /CarsActivity/{selected_date}:
+    get:
+      operationId: cars_activity_date_get
+      parameters:
+        - in: path
+          name: selected_date
+          schema:
+            type: integer
+            maximum: 29999999
+          required: true
+      responses:
+        200:
+          description: CarsActivity of specified date
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/travelinfo'
-          description: Travel information
+                type: object
       x-openapi-router-controller: openapi_server.controllers.default_controller
-  /firstblob:
+  /StopLocations:
     get:
-      operationId: firstblob_get
+      operationId: stop_locations_get
       responses:
         200:
+          description: CarsActivity index
+          content: 
+            application/json:
+              schema:
+                type: object
+      x-openapi-router-controller: openapi_server.controllers.default_controller
+  /StopLocations/{selected_date}:
+    get:
+      operationId: stop_locations_date_get
+      parameters:
+        - in: path
+          name: selected_date
+          schema:
+            type: integer
+            maximum: 29999999
+          required: true
+      responses:
+        200:
+          description: CarsActivity of specified date
           content:
             application/json:
-              schema: {}
-          description: First blob containing travel information
+              schema:
+                type: object
       x-openapi-router-controller: openapi_server.controllers.default_controller
 components:
   schemas:
